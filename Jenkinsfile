@@ -10,10 +10,10 @@ pipeline {
                 sh " docker build -t my-site ./web"
             }
         }
-    }
          stage('Run') {
             steps {
                 sh 'docker run -d -p 3000:3000 my-site'
             }
          }
+    }
 }
