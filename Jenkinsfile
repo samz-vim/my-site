@@ -15,5 +15,10 @@ pipeline {
                 sh 'docker run -d -p 3000:3000 my-site'
             }
          }
+          stage('deploy') {
+            steps {
+                sh 'echo "done"'
+            }
+         }
     }
 }
