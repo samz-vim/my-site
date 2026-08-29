@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     stages {
-        stage('Hello') {
+        stage('build') {
             steps {
                 sh 'echo "Hello World"'
                 sh " whoami"
@@ -11,4 +11,9 @@ pipeline {
             }
         }
     }
+     stage('Run') {
+            steps {
+                sh 'docker run -d -p 3000:3000 my-site'
+            }
+        }
 }
