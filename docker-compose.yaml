@@ -1,7 +1,7 @@
-version: "3.0"
-service:
-  web: 
-    build: ./web
-    port:
-    - 3000:3000
-volume:
+services:
+  web:
+    image: samz/my-site:latest
+    container_name: my-site
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
