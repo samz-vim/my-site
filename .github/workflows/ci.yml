@@ -1,4 +1,3 @@
-```yaml
 name: Build, Test, Push and Deploy
 
 on:
@@ -111,5 +110,3 @@ jobs:
             echo "Deployment completed!"
 
             docker ps
-```
-
