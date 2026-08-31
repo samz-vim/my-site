@@ -1,3 +1,4 @@
+```yaml
 name: Build, Test, Push and Deploy
 
 on:
@@ -10,7 +11,35 @@ on:
 jobs:
 
   # ==========================================
-  # 1. BUILD DOCKER IMAGE AND PUSH TO DOCKER HUB
+  # 1. TEST THE APPLICATION
+  # ==========================================
+  test:
+    name: Test Application
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      # Use this section if your website is Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build application
+        run: npm run build
+
+
+  # ==========================================
+  # 2. BUILD DOCKER IMAGE AND PUSH TO DOCKER HUB
   # ==========================================
   docker:
     name: Build and Push Docker Image
@@ -83,3 +112,4 @@ jobs:
 
             docker ps
 ```
+
