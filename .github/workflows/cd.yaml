@@ -1,4 +1,3 @@
-```yaml
 name: CD - Deploy to AWS
 
 on:
@@ -85,4 +84,3 @@ jobs:
             echo "================================="
             echo "Deployment completed successfully"
             echo "================================="
-```
