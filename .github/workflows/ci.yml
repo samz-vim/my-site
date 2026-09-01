@@ -86,7 +86,7 @@ jobs:
   
             mkdir -p ~/my-website
   
-            cd ~/my-site
+            cd ~/my-website
   
             # --------------------------------
             # 2. Create docker-compose.yml
