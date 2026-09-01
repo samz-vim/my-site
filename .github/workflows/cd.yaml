@@ -1,0 +1,88 @@
+```yaml
+name: CD - Deploy to AWS
+
+on:
+  workflow_run:
+    workflows:
+      - CI
+    types:
+      - completed
+
+  workflow_dispatch:
+
+jobs:
+
+  deploy:
+    name: Deploy to AWS EC2
+    runs-on: ubuntu-latest
+
+    # Only deploy when CI was successful
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+
+    steps:
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.2.5
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+
+          script: |
+            set -e
+
+            echo "================================="
+            echo "Starting deployment"
+            echo "================================="
+
+            # Create application directory
+            echo "Creating application directory..."
+
+            mkdir -p ~/my-website
+
+            cd ~/my-website
+
+            # Create docker-compose.yml
+            echo "Creating docker-compose.yml..."
+
+            cat > docker-compose.yml << EOF
+            services:
+              website:
+                image: ${{ secrets.DOCKER_USERNAME }}/my-website:latest
+                container_name: my-website
+                ports:
+                  - "80:80"
+                restart: unless-stopped
+            EOF
+
+            # Pull latest image
+            echo "Pulling latest Docker image..."
+
+            docker pull ${{ secrets.DOCKER_USERNAME }}/my-website:latest
+
+            # Stop old container
+            echo "Stopping old container..."
+
+            docker compose down || true
+
+            # Start new container
+            echo "Starting new container..."
+
+            docker compose up -d
+
+            # Clean unused images
+            echo "Cleaning unused images..."
+
+            docker image prune -f
+
+            # Show running containers
+            echo "Running containers:"
+
+            docker ps
+
+            echo "================================="
+            echo "Deployment completed successfully"
+            echo "================================="
+```
