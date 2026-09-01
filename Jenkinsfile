@@ -1,40 +1,84 @@
+
 pipeline {
+
     agent any
 
     environment {
+
+        // Docker Hub image
         DOCKER_IMAGE = "YOUR_DOCKER_USERNAME/my-website"
+
     }
 
     stages {
 
+        // ==========================================
+        // 1. CHECKOUT
+        // ==========================================
+
         stage('Checkout') {
+
             steps {
+
+                echo 'Checking out source code...'
+
                 checkout scm
             }
         }
 
-        stage('Test') {
-            steps {
-                echo 'Running tests...'
 
-                // If your project uses npm:
-                sh 'npm ci'
-                sh 'npm test'
+        // ==========================================
+        // 2. TEST
+        // ==========================================
+
+        stage('Test') {
+
+            steps {
+
+                echo 'Running application tests...'
+
+                // For a simple HTML/CSS/JS website,
+                // we verify that the website files exist.
+
+                sh '''
+                    test -f web/Dockerfile
+                    test -f web/index.html
+
+                    echo "Required files found."
+                '''
             }
         }
 
+
+        // ==========================================
+        // 3. BUILD DOCKER IMAGE
+        // ==========================================
+
         stage('Docker Build') {
+
             steps {
-                sh """
+
+                echo 'Building Docker image...'
+
+                sh '''
                     docker build \
                     -t ${DOCKER_IMAGE}:latest \
                     ./web
-                """
+                '''
             }
         }
 
+
+        // ==========================================
+        // 4. LOGIN TO DOCKER HUB
+        // ==========================================
+
         stage('Docker Login') {
+
             steps {
+
+                echo 'Logging into Docker Hub...'
+
                 withCredentials([
                     usernamePassword(
                         credentialsId: 'dockerhub',
@@ -42,58 +86,129 @@ pipeline {
                         passwordVariable: 'DOCKER_PASSWORD'
                     )
                 ]) {
+
                     sh '''
                         echo "$DOCKER_PASSWORD" | docker login \
-                        -u "$DOCKER_USERNAME" \
+                        --username "$DOCKER_USERNAME" \
                         --password-stdin
                     '''
                 }
             }
         }
 
+
+        // ==========================================
+        // 5. PUSH IMAGE TO DOCKER HUB
+        // ==========================================
+
         stage('Push to Docker Hub') {
+
             steps {
-                sh """
+
+                echo 'Pushing Docker image to Docker Hub...'
+
+                sh '''
                     docker push ${DOCKER_IMAGE}:latest
-                """
+                '''
             }
         }
 
+
+        // ==========================================
+        // 6. DEPLOY TO AWS EC2
+        // ==========================================
+
         stage('Deploy to AWS') {
+
             steps {
+
+                echo 'Deploying application to AWS EC2...'
+
                 sshagent(['aws-ec2-ssh']) {
 
-                    sh """
+                    sh '''
+
                         ssh -o StrictHostKeyChecking=no \
-                        ec2-user@YOUR_EC2_IP '
-                            
-                            mkdir -p ~/my-website
+                        ec2-user@YOUR_EC2_PUBLIC_IP << 'EOF'
 
-                            cd ~/my-website
+                        set -e
 
-                            cat > docker-compose.yml << EOF
-                            services:
-                              website:
-                                image: ${DOCKER_IMAGE}:latest
-                                container_name: my-website
-                                ports:
-                                  - "80:80"
-                                restart: unless-stopped
-                            EOF
+                        echo "Starting deployment..."
 
-                            docker pull ${DOCKER_IMAGE}:latest
+                        # Create deployment directory
+                        mkdir -p ~/my-website
 
-                            docker compose down || true
+                        cd ~/my-website
 
-                            docker compose up -d
+                        # Create docker-compose.yml
+                        cat > docker-compose.yml << COMPOSE
 
-                            docker image prune -f
+                        services:
 
-                            docker ps
-                        '
-                    """
+                          website:
+
+                            image: YOUR_DOCKER_USERNAME/my-website:latest
+
+                            container_name: my-website
+
+                            ports:
+                              - "80:80"
+
+                            restart: unless-stopped
+
+                        COMPOSE
+
+                        # Pull latest Docker image
+                        echo "Pulling latest image..."
+
+                        docker pull YOUR_DOCKER_USERNAME/my-website:latest
+
+                        # Stop old container
+                        echo "Stopping old container..."
+
+                        docker compose down || true
+
+                        # Start new container
+                        echo "Starting new container..."
+
+                        docker compose up -d
+
+                        # Remove unused images
+                        docker image prune -f
+
+                        # Show running containers
+                        echo "Running containers:"
+
+                        docker ps
+
+                        echo "Deployment completed successfully!"
+
+                        EOF
+                    '''
                 }
             }
+        }
+    }
+
+
+    // ==========================================
+    // PIPELINE RESULT
+    // ==========================================
+
+    post {
+
+        success {
+
+            echo '====================================='
+            echo 'CI/CD PIPELINE COMPLETED SUCCESSFULLY'
+            echo '====================================='
+        }
+
+        failure {
+
+            echo '====================================='
+            echo 'CI/CD PIPELINE FAILED'
+            echo '====================================='
         }
     }
 }
