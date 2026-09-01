@@ -129,7 +129,7 @@ pipeline {
                     sh '''
 
                         ssh -o StrictHostKeyChecking=no \
-                        ec2-user@YOUR_EC2_PUBLIC_IP << 'EOF'
+                        ubuntu@16.16.149.119 << 'EOF'
 
                         set -e
 
