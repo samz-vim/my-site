@@ -49,27 +49,7 @@ pipeline {
             }
         }
 
-
-        // ==========================================
-        // 3. BUILD DOCKER IMAGE
-        // ==========================================
-
-        stage('Docker Build') {
-
-            steps {
-
-                echo 'Building Docker image...'
-
-                sh '''
-                    docker build \
-                    -t samzcode:latest \
-                    ./web
-                '''
-            }
-        }
-
-
-        // ==========================================
+             // ==========================================
         // 4. LOGIN TO DOCKER HUB
         // ==========================================
 
@@ -97,6 +77,26 @@ pipeline {
         }
 
 
+
+
+        // ==========================================
+        // 3. BUILD DOCKER IMAGE
+        // ==========================================
+
+        stage('Docker Build') {
+
+            steps {
+
+                echo 'Building Docker image...'
+
+                sh '''
+                    docker build \
+                    -t samzcode:latest \
+                    ./web
+                '''
+            }
+        }
+        
         // ==========================================
         // 5. PUSH IMAGE TO DOCKER HUB
         // ==========================================
