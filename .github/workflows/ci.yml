@@ -48,13 +48,13 @@ jobs:
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v7
         with:
-          context: .
+          context: ./web
+          file: ./web/Dockerfile
           push: true
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/my-website:latest
             ${{ secrets.DOCKER_USERNAME }}/my-website:${{ github.sha }}
-
-
+   
   # ==========================================
   # 3. DEPLOY TO AWS EC2
   # ==========================================
