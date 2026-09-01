@@ -62,7 +62,7 @@ pipeline {
 
                 sh '''
                     docker build \
-                    -t ${DOCKER_IMAGE}:latest \
+                    -t samzcode:latest \
                     ./web
                 '''
             }
