@@ -132,71 +132,70 @@ pipeline {
         // 6. DEPLOY TO AWS EC2
         // ==========================================
 
-        ```groovy
-stage('Deploy to AWS') {
-    steps {
-        echo 'Deploying application to AWS EC2...'
-
-        sshagent(['aws-ec2-ssh']) {
-            sh """
-                ssh -o StrictHostKeyChecking=no ubuntu@16.16.149.119 << 'REMOTE_EOF'
-                set -e
-
-                echo "Starting deployment..."
-
-                # Create deployment directory
-                mkdir -p ~/my-site
-                cd ~/my-site
-
-                # Create docker-compose.yml
-                cat > docker-compose.yml << 'COMPOSE_EOF'
-                    services:
-                      website:
-                        image: ${DOCKER_IMAGE}:latest
-                        container_name: my-website
-                        ports:
-                          - "80:80"
-                        restart: unless-stopped
-                    COMPOSE_EOF
-
-                echo "Docker Compose file created:"
-                cat docker-compose.yml
-
-                # Validate Docker Compose file
-                echo "Validating Docker Compose configuration..."
-                docker compose config
-
-                # Pull the latest image
-                echo "Pulling latest Docker image..."
-                docker pull ${DOCKER_IMAGE}:latest
-
-                # Stop and remove old container
-                echo "Stopping old container..."
-                docker compose down || true
-
-                # Start the new container
-                echo "Starting new container..."
-                docker compose up -d
-
-                # Remove unused Docker images
-                echo "Cleaning unused images..."
-                docker image prune -f
-
-                # Show container status
-                echo "Running containers:"
-                docker ps -a
-
-                # Show application logs
-                echo "Container logs:"
-                docker logs --tail 50 my-website || true
-
-                echo "Deployment completed successfully!"
-
-                REMOTE_EOF
-            """
+        stage('Deploy to AWS') {
+            steps {
+                echo 'Deploying application to AWS EC2...'
+        
+                sshagent(['aws-ec2-ssh']) {
+                    sh """
+                        ssh -o StrictHostKeyChecking=no ubuntu@16.16.149.119 << 'REMOTE_EOF'
+                        set -e
+        
+                        echo "Starting deployment..."
+        
+                        # Create deployment directory
+                        mkdir -p ~/my-site
+                        cd ~/my-site
+        
+                        # Create docker-compose.yml
+                        cat > docker-compose.yml << 'COMPOSE_EOF'
+                            services:
+                              website:
+                                image: ${DOCKER_IMAGE}:latest
+                                container_name: my-website
+                                ports:
+                                  - "80:80"
+                                restart: unless-stopped
+                            COMPOSE_EOF
+        
+                        echo "Docker Compose file created:"
+                        cat docker-compose.yml
+        
+                        # Validate Docker Compose file
+                        echo "Validating Docker Compose configuration..."
+                        docker compose config
+        
+                        # Pull the latest image
+                        echo "Pulling latest Docker image..."
+                        docker pull ${DOCKER_IMAGE}:latest
+        
+                        # Stop and remove old container
+                        echo "Stopping old container..."
+                        docker compose down || true
+        
+                        # Start the new container
+                        echo "Starting new container..."
+                        docker compose up -d
+        
+                        # Remove unused Docker images
+                        echo "Cleaning unused images..."
+                        docker image prune -f
+        
+                        # Show container status
+                        echo "Running containers:"
+                        docker ps -a
+        
+                        # Show application logs
+                        echo "Container logs:"
+                        docker logs --tail 50 my-website || true
+        
+                        echo "Deployment completed successfully!"
+        
+                        REMOTE_EOF
+                    """
+                    }
+                }
             }
-        }
-    }
 
 
     // ==========================================
