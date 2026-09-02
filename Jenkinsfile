@@ -138,7 +138,7 @@ pipeline {
         
                 sshagent(['aws-ec2-ssh']) {
                     sh """
-                        ssh -o StrictHostKeyChecking=no ubuntu@16.16.149.119 << 'REMOTE_EOF'
+                        ssh -o StrictHostKeyChecking=no ubuntu@16.16.149.119 
                         set -e
         
                         echo "Starting deployment..."
@@ -191,7 +191,6 @@ pipeline {
         
                         echo "Deployment completed successfully!"
         
-                        REMOTE_EOF
                     """
                 }
             }
