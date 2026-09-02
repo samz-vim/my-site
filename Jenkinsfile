@@ -148,7 +148,7 @@ pipeline {
                         cd ~/my-site
         
                         # Create docker-compose.yml
-                        cat > docker-compose.yml << COMPOSE_EOF
+                        cat > docker-compose.yml << COMPOSE
                             services:
                               website:
                                 image: ${DOCKER_IMAGE}:latest
@@ -156,7 +156,7 @@ pipeline {
                                 ports:
                                   - "80:80"
                                 restart: unless-stopped
-                            COMPOSE_EOF
+                            COMPOSE
         
                         echo "Docker Compose file created:"
                         cat docker-compose.yml
