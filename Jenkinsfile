@@ -132,67 +132,68 @@ pipeline {
         // 6. DEPLOY TO AWS EC2
         // ==========================================
 
-        stage('Deploy to AWS') {
+        ```groovy
+stage('Deploy to AWS') {
+    steps {
+        echo 'Deploying application to AWS EC2...'
 
-            steps {
+        sshagent(['aws-ec2-ssh']) {
+            sh """
+                ssh -o StrictHostKeyChecking=no ubuntu@16.16.149.119 << 'REMOTE_EOF'
+                set -e
 
-                echo 'Deploying application to AWS EC2...'
+                echo "Starting deployment..."
 
-                sshagent(['aws-ec2-ssh']) {
+                # Create deployment directory
+                mkdir -p ~/my-site
+                cd ~/my-site
 
-                    sh '''
+                # Create docker-compose.yml
+                cat > docker-compose.yml << 'COMPOSE_EOF'
+                    services:
+                      website:
+                        image: ${DOCKER_IMAGE}:latest
+                        container_name: my-website
+                        ports:
+                          - "80:80"
+                        restart: unless-stopped
+                    COMPOSE_EOF
 
-                        ssh -o StrictHostKeyChecking=no \
-                        ubuntu@16.16.149.119 << 'EOF'
+                echo "Docker Compose file created:"
+                cat docker-compose.yml
 
-                        set -e
+                # Validate Docker Compose file
+                echo "Validating Docker Compose configuration..."
+                docker compose config
 
-                        echo "Starting deployment..."
+                # Pull the latest image
+                echo "Pulling latest Docker image..."
+                docker pull ${DOCKER_IMAGE}:latest
 
-                        # Create deployment directory
-                        mkdir -p ~/my-site
+                # Stop and remove old container
+                echo "Stopping old container..."
+                docker compose down || true
 
-                        cd ~/my-site
+                # Start the new container
+                echo "Starting new container..."
+                docker compose up -d
 
-                        # Create docker-compose.yml
-                        cat > docker-compose.yml << 'COMPOSE'
-                        services:
-                          website:
-                            image: ${DOCKER_IMAGE}:latest
-                            container_name: my-website
-                            ports:
-                              - "80:80"
-                            restart: unless-stopped
-                        COMPOSE
+                # Remove unused Docker images
+                echo "Cleaning unused images..."
+                docker image prune -f
 
-                        # Pull latest Docker image
-                        echo "Pulling latest image..."
+                # Show container status
+                echo "Running containers:"
+                docker ps -a
 
-                        docker pull ${DOCKER_IMAGE}:latest
+                # Show application logs
+                echo "Container logs:"
+                docker logs --tail 50 my-website || true
 
-                        # Stop old container
-                        echo "Stopping old container..."
+                echo "Deployment completed successfully!"
 
-                        docker compose down || true
-
-                        # Start new container
-                        echo "Starting new container..."
-
-                        docker compose up -d
-
-                        # Remove unused images
-                        docker image prune -f
-
-                        # Show running containers
-                        echo "Running containers:"
-
-                        docker ps
-
-                        echo "Deployment completed successfully!"
-
-                    '''
-                    EOF
-                }
+                REMOTE_EOF
+            """
             }
         }
     }
@@ -203,7 +204,6 @@ pipeline {
     // ==========================================
 
     post {
-
         success {
 
             echo '====================================='
