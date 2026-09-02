@@ -6,7 +6,7 @@ pipeline {
     environment {
 
         // Docker Hub image
-        DOCKER_IMAGE = "YOUR_DOCKER_USERNAME/my-website"
+        DOCKER_IMAGE = "samzcode/jenkins"
 
     }
 
@@ -91,7 +91,7 @@ pipeline {
 
                 sh '''
                     docker build \
-                    -t samzcode:latest \
+                    -t ${DOCKER_IMAGE}:latest \
                     ./web
                 '''
             }
