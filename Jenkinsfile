@@ -148,7 +148,7 @@ pipeline {
                         cd ~/my-site
         
                         # Create docker-compose.yml
-                        cat > docker-compose.yml << 'COMPOSE_EOF'
+                        cat > docker-compose.yml << COMPOSE_EOF
                             services:
                               website:
                                 image: ${DOCKER_IMAGE}:latest
