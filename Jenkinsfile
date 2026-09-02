@@ -161,7 +161,7 @@ pipeline {
 
                           website:
 
-                            image: YOUR_DOCKER_USERNAME/my-website:latest
+                            image:   ${DOCKER_IMAGE}:latest
 
                             container_name: my-website
 
