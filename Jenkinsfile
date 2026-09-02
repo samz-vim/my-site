@@ -150,9 +150,9 @@ pipeline {
                         echo "Starting deployment..."
 
                         # Create deployment directory
-                        mkdir -p ~/my-website
+                        mkdir -p ~/my-site
 
-                        cd ~/my-website
+                        cd ~/my-site
 
                         # Create docker-compose.yml
                         cat > docker-compose.yml << COMPOSE
