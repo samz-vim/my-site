@@ -155,7 +155,7 @@ pipeline {
                         cd ~/my-site
 
                         # Create docker-compose.yml
-                        cat > docker-compose.yml << EOF
+                        cat > docker-compose.yml << 'COMPOSE'
                         services:
                           website:
                             image: ${DOCKER_IMAGE}:latest
@@ -163,8 +163,7 @@ pipeline {
                             ports:
                               - "80:80"
                             restart: unless-stopped
-
-                        EOF
+                        COMPOSE
 
                         # Pull latest Docker image
                         echo "Pulling latest image..."
@@ -192,6 +191,7 @@ pipeline {
                         echo "Deployment completed successfully!"
 
                     '''
+                    EOF
                 }
             }
         }
