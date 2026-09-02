@@ -161,7 +161,7 @@ pipeline {
                         # Pull latest Docker image
                         echo "Pulling latest image..."
 
-                        docker pull YOUR_DOCKER_USERNAME/my-website:latest
+                        docker pull ${DOCKER_IMAGE}:latest
 
                         # Stop old container
                         echo "Stopping old container..."
