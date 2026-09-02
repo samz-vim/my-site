@@ -156,20 +156,13 @@ pipeline {
 
                         # Create docker-compose.yml
                         cat > docker-compose.yml << COMPOSE
-
                         services:
-
                           website:
-
                             image: ${DOCKER_IMAGE}:latest
-
                             container_name: my-website
-
                             ports:
                               - "80:80"
-
                             restart: unless-stopped
-
                         COMPOSE
 
                         # Pull latest Docker image
