@@ -113,6 +113,18 @@ pipeline {
             }
         }
 
+        stage('Test SSH') {
+    steps {
+        sshagent(['aws-ec2-ssh']) {
+            sh '''
+                echo "Keys loaded into SSH agent:"
+                ssh-add -l
+
+                echo "Testing SSH..."
+                ssh -vvv -o StrictHostKeyChecking=no ubuntu@16.16.149.119 "whoami"
+            '''
+        }
+
 
         // ==========================================
         // 6. DEPLOY TO AWS EC2
